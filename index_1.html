@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Monthly Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF2E7;
+    --paper:#FFFCF6;
+    --ink:#5B4636;
+    --ink-soft:#9C8571;
+    --pink:#EFC9C6;
+    --pink-deep:#D9948E;
+    --pink-line:#EAD9D3;
+    --blue:#C7D3E0;
+    --blue-deep:#8FA3BB;
+    --gold:#CBA05F;
+    --sage:#B7C4A6;
+    --line:#EFE0D2;
+    --shadow: 0 2px 4px rgba(91,70,54,0.05), 0 10px 26px rgba(91,70,54,0.07);
+  }
+  *{box-sizing:border-box;}
+  html, body{overflow-x:hidden;}
+  body{
+    margin:0;
+    background:var(--cream);
+    background-image:
+      radial-gradient(circle at 6% 8%, rgba(239,201,198,0.35), transparent 32%),
+      radial-gradient(circle at 96% 12%, rgba(199,211,224,0.3), transparent 30%),
+      radial-gradient(circle at 90% 92%, rgba(239,201,198,0.28), transparent 32%),
+      radial-gradient(circle at 4% 90%, rgba(199,211,224,0.22), transparent 30%);
+    font-family:'Quicksand', sans-serif;
+    color:var(--ink);
+    padding:44px 18px 70px;
+    position:relative;
+  }
+  .corner{position:absolute; z-index:0; pointer-events:none;}
+  .corner.tl{top:8px; left:8px; width:150px;}
+  .corner.tr{top:8px; right:8px; width:140px;}
+  .corner.bl{bottom:8px; left:8px; width:140px;}
+  .corner.br{bottom:8px; right:8px; width:150px;}
+  @media (max-width:760px){ .corner{width:90px !important;} }
+  .wrap{max-width:1160px;margin:0 auto; position:relative; z-index:1;}
+
+  header{text-align:center; margin-bottom:34px; position:relative;}
+  .spark{position:absolute; font-size:15px; color:var(--pink-deep); opacity:.6;}
+  h1{
+    font-family:'Playfair Display', serif; font-weight:700;
+    font-size:52px; margin:0 0 10px; letter-spacing:-0.01em; color:var(--ink);
+  }
+  .bow{margin:6px auto 14px; width:220px; height:20px; opacity:.9;}
+  .sub{
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
+    color:var(--blue-deep); font-size:19px;
+  }
+  .sub .heart{color:var(--pink-deep); font-style:normal;}
+
+  .tabs{display:flex; justify-content:center; gap:10px; margin:30px 0 26px; flex-wrap:wrap;}
+  .tab{
+    font-family:'Playfair Display', serif; font-weight:600; font-size:14px;
+    letter-spacing:.04em;
+    padding:9px 26px; border-radius:100px;
+    border:1.5px solid var(--pink-line);
+    background:var(--paper); color:var(--ink-soft); cursor:pointer;
+    transition:all .18s ease; box-shadow:var(--shadow);
+  }
+  .tab:hover{border-color:var(--pink-deep); color:var(--ink);}
+  .tab.active{background:var(--pink-deep); color:#fff; border-color:var(--pink-deep);}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;}
+  .stat{
+    background:var(--paper); border:1.5px dashed var(--pink-line); border-radius:18px;
+    padding:18px 18px; text-align:center; box-shadow:var(--shadow);
+  }
+  .stat .ico{font-size:20px; margin-bottom:6px; display:block;}
+  .stat .num{font-family:'Playfair Display', serif; font-size:26px; font-weight:700; line-height:1; color:var(--ink);}
+  .stat .lbl{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-top:7px; font-weight:600;}
+
+  .rhythm{
+    background:var(--paper); border:1.5px solid var(--pink-line); border-radius:22px;
+    padding:22px 24px 18px; margin-bottom:22px; box-shadow:var(--shadow);
+    position:relative;
+  }
+  .rhythm-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .rhythm-head h2{font-family:'Playfair Display',serif; font-weight:600; font-size:19px; margin:0; color:var(--ink);}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--ink-soft); font-weight:600;}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
+  .dot.work{background:var(--pink-deep);}
+  .dot.study{background:var(--blue-deep);}
+  .dot.personal{background:var(--sage);}
+
+  .bars{display:grid; grid-template-columns:repeat(7,1fr); gap:10px; align-items:end; height:150px;}
+  .barcol{display:flex; flex-direction:column-reverse; height:100%; border-radius:10px; overflow:hidden; background:#F4E9DD;}
+  .seg{width:100%;}
+  .seg.work{background:var(--pink-deep);}
+  .seg.study{background:var(--blue-deep);}
+  .seg.personal{background:var(--sage);}
+  .daylabels{display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-top:9px;}
+  .daylabels span{font-size:11px; text-align:center; color:var(--ink-soft); font-weight:700; letter-spacing:.04em; font-family:'Playfair Display',serif;}
+
+  .goal{
+    display:flex; align-items:center; justify-content:center; gap:14px; text-align:center;
+    background:var(--paper);
+    border:1.5px dashed var(--gold); border-radius:100px;
+    padding:14px 26px; margin-bottom:26px; font-size:14px;
+  }
+  .goal .badge{
+    font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--gold);
+    white-space:nowrap;
+  }
+  .goal .txt{color:var(--ink-soft); font-style:italic; font-family:'Playfair Display',serif; font-size:15px;}
+  .goal .txt b{color:var(--ink); font-style:normal;}
+
+  .days{display:grid; grid-template-columns:repeat(7,1fr); gap:12px;}
+  .day{
+    background:var(--paper); border:1.5px solid var(--pink-line); border-radius:18px;
+    padding:0 0 14px; box-shadow:var(--shadow); min-height:230px; overflow:hidden;
+  }
+  .day.weekend .dname{background:var(--blue);}
+  .day .dname{
+    font-family:'Playfair Display',serif; font-weight:700; font-size:13.5px;
+    padding:10px 13px; margin-bottom:10px;
+    background:var(--pink);
+    display:flex; justify-content:space-between; align-items:center; color:var(--ink);
+  }
+  .day .dtot{font-size:10px; color:var(--ink); font-weight:700; font-family:'Quicksand',sans-serif; opacity:.75;}
+  .item{font-size:11.5px; margin-bottom:10px; line-height:1.4; padding:0 13px;}
+  .item .t{color:var(--ink-soft); font-weight:700; font-size:10.5px; display:block;}
+  .item .label{display:flex; align-items:center; gap:6px; margin-top:2px; font-weight:600;}
+  .item .ico{font-size:12px;}
+
+  footer{margin-top:36px; text-align:center; color:var(--ink-soft); font-size:12px; letter-spacing:.03em; font-family:'Playfair Display',serif; font-style:italic;}
+
+  @media (max-width:900px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .bars, .daylabels{grid-template-columns:repeat(7,minmax(60px,1fr)); overflow-x:auto;}
+    .days{display:flex; overflow-x:auto; padding-bottom:8px; gap:12px;}
+    .day{min-width:150px; flex:none;}
+    h1{font-size:36px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- corner floral doodles -->
+<svg class="corner tl" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g opacity="0.85">
+    <path d="M10 60 Q40 20 90 15" stroke="#D9948E" stroke-width="1.4" fill="none"/>
+    <ellipse cx="30" cy="45" rx="16" ry="9" fill="#EFC9C6" transform="rotate(-30 30 45)"/>
+    <ellipse cx="45" cy="30" rx="14" ry="8" fill="#F3D9C4" transform="rotate(10 45 30)"/>
+    <ellipse cx="18" cy="28" rx="12" ry="7" fill="#C7D3E0" transform="rotate(50 18 28)"/>
+    <circle cx="34" cy="38" r="6" fill="#CBA05F" opacity="0.8"/>
+    <path d="M55 55 q10 -18 28 -20" stroke="#B7C4A6" stroke-width="1.2" fill="none"/>
+    <ellipse cx="80" cy="34" rx="9" ry="5" fill="#B7C4A6" transform="rotate(-20 80 34)"/>
+  </g>
+</svg>
+<svg class="corner tr" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g opacity="0.85">
+    <path d="M190 55 Q160 15 115 12" stroke="#8FA3BB" stroke-width="1.4" fill="none"/>
+    <ellipse cx="168" cy="40" rx="15" ry="8" fill="#C7D3E0" transform="rotate(30 168 40)"/>
+    <ellipse cx="150" cy="26" rx="13" ry="7" fill="#EFC9C6" transform="rotate(-10 150 26)"/>
+    <circle cx="160" cy="34" r="5.5" fill="#CBA05F" opacity="0.8"/>
+    <path d="M40 70 q6 -14 24 -18" stroke="#D9948E" stroke-width="1.1" fill="none"/>
+    <ellipse cx="60" cy="52" rx="7" ry="4" fill="#D9948E" transform="rotate(15 60 52)"/>
+  </g>
+</svg>
+<svg class="corner bl" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g opacity="0.85">
+    <path d="M10 140 Q35 175 85 182" stroke="#CBA05F" stroke-width="1.3" fill="none"/>
+    <ellipse cx="28" cy="158" rx="15" ry="8" fill="#EFC9C6" transform="rotate(25 28 158)"/>
+    <ellipse cx="45" cy="172" rx="13" ry="7" fill="#C7D3E0" transform="rotate(-15 45 172)"/>
+    <circle cx="35" cy="163" r="5.5" fill="#B7C4A6" opacity="0.85"/>
+    <rect x="12" y="10" width="26" height="34" rx="3" fill="#F3D9C4" opacity="0.9" transform="rotate(-8 25 27)"/>
+    <path d="M18 20 h14 M18 26 h14 M18 32 h10" stroke="#9C8571" stroke-width="1" opacity=".5" transform="rotate(-8 25 27)"/>
+  </g>
+</svg>
+<svg class="corner br" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g opacity="0.85">
+    <path d="M190 150 Q160 180 110 185" stroke="#D9948E" stroke-width="1.3" fill="none"/>
+    <ellipse cx="172" cy="165" rx="16" ry="9" fill="#EFC9C6" transform="rotate(-25 172 165)"/>
+    <ellipse cx="152" cy="178" rx="13" ry="7" fill="#F3D9C4" transform="rotate(10 152 178)"/>
+    <ellipse cx="185" cy="150" rx="11" ry="6" fill="#C7D3E0" transform="rotate(40 185 150)"/>
+    <circle cx="165" cy="170" r="5.5" fill="#CBA05F" opacity="0.85"/>
+    <path d="M40 60 q-10 -20 -25 -22" stroke="#B7C4A6" stroke-width="1.1" fill="none"/>
+  </g>
+</svg>
+
+<div class="wrap">
+  <header>
+    <span class="spark" style="top:-10px;left:8%;">✦</span>
+    <span class="spark" style="top:20px;right:10%;">✦</span>
+    <span class="spark" style="top:60px;left:20%;font-size:10px;">✧</span>
+    <span class="spark" style="top:50px;right:22%;font-size:10px;">✧</span>
+    <h1>Monthly Schedule</h1>
+    <svg class="bow" viewBox="0 0 220 20" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="10" x2="80" y2="10" stroke="#D9948E" stroke-width="1"/>
+      <path d="M100 4 C90 4 88 16 100 10 C112 16 110 4 100 4 Z" fill="#EFC9C6" stroke="#D9948E" stroke-width="1"/>
+      <circle cx="100" cy="10" r="2" fill="#D9948E"/>
+      <line x1="140" y1="10" x2="220" y2="10" stroke="#D9948E" stroke-width="1"/>
+    </svg>
+    <div class="sub">Balanced work, study, and personal time <span class="heart">♡</span></div>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="rhythm">
+    <div class="rhythm-head">
+      <h2>Daily time breakdown</h2>
+      <div class="legend">
+        <span><i class="dot work"></i>Work</span>
+        <span><i class="dot study"></i>Study</span>
+        <span><i class="dot personal"></i>Personal</span>
+      </div>
+    </div>
+    <div class="bars" id="bars"></div>
+    <div class="daylabels" id="daylabels"></div>
+  </div>
+
+  <div class="goal" id="goalBanner"></div>
+
+  <div class="days" id="days"></div>
+
+  <footer>you got this ♡ — study goal: at least 3 hours every day</footer>
+</div>
+
+<script>
+const DOW = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"];
+const ICONS = { work:"💼", study:"📖", personal:"💗", free:"♡" };
+
+const weekTemplate = (variant) => ([
+  { items:[
+      {t:"8:30–3:30 PM", label:"Work", cat:"work", h:7},
+      {t:"4:30–6:30 PM", label:"Work", cat:"work", h:2},
+      {t:"7:00–10:00 PM", label:"Study", cat:"study", h:3},
+  ]},
+  { items:[
+      {t:"6:00 AM", label:"Pilates", cat:"personal", h:1},
+      {t:"8:30–3:30 PM", label:"Work", cat:"work", h:7},
+      {t:"4:30–6:30 PM", label:"Work", cat:"work", h:2},
+      {t:"7:00–10:00 PM", label:"Study", cat:"study", h:3},
+  ]},
+  { items:[
+      {t:"8:30–3:30 PM", label:"Work", cat:"work", h:7},
+      {t:"4:30–7:30 PM", label:"Study", cat:"study", h:3},
+      {t:"Evening", label:"Free / Relax", cat:"free", h:0},
+  ]},
+  { items:[
+      {t:"8:30–3:30 PM", label:"Work", cat:"work", h:7},
+      {t:"4:30–6:30 PM", label:"Work", cat:"work", h:2},
+      {t:"7:00–10:00 PM", label:"Study", cat:"study", h:3},
+  ]},
+  { items:[
+      {t:"8:30–3:30 PM", label:"Work", cat:"work", h:7},
+      {t:"4:30–6:30 PM", label:"Work", cat:"work", h:2},
+      {t:"7:00–10:00 PM", label:"Study", cat:"study", h:3},
+  ]},
+  { items:[
+      {t:"10:00–1:00 PM", label:"Work", cat:"work", h:3},
+      {t:"1:30–2:30 PM", label:"Lacrosse Client Training", cat:"personal", h:1},
+      {t:"3:00–6:00 PM", label:"Study", cat:"study", h:3},
+      {t:"Evening", label:"Free", cat:"free", h:0},
+  ]},
+  { items: variant === "nails" ? [
+      {t:"9:00–12:00 PM", label:"Study", cat:"study", h:3},
+      {t:"1:00 PM", label:"Nails", cat:"personal", h:1},
+      {t:"2:30 PM onward", label:"Family + Boyfriend Time", cat:"personal", h:5},
+      {t:"Rest of Day", label:"Free Day", cat:"free", h:0},
+    ] : [
+      {t:"9:00–12:00 PM", label:"Study", cat:"study", h:3},
+      {t:"12:00 PM onward", label:"Family + Boyfriend Time", cat:"personal", h:6},
+      {t:"Rest of Day", label:"Free Day", cat:"free", h:0},
+  ]},
+]);
+
+const weeks = {
+  "Week 1": weekTemplate("standard"),
+  "Week 2": weekTemplate("nails"),
+  "Week 3": weekTemplate("standard"),
+  "Week 4": weekTemplate("standard"),
+};
+
+let current = "Week 1";
+
+function totals(days){
+  let work=0, study=0, personal=0;
+  days.forEach(d=>d.items.forEach(i=>{
+    if(i.cat==="work") work+=i.h;
+    if(i.cat==="study") study+=i.h;
+    if(i.cat==="personal") personal+=i.h;
+  }));
+  return {work, study, personal};
+}
+function studyGoalDays(days){
+  return days.filter(d => d.items.filter(i=>i.cat==="study").reduce((a,i)=>a+i.h,0) >= 3).length;
+}
+
+function render(){
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = Object.keys(weeks).map(w =>
+    `<button class="tab ${w===current?'active':''}" data-w="${w}">${w}</button>`
+  ).join('');
+  tabsEl.querySelectorAll('.tab').forEach(btn=>{
+    btn.onclick = ()=>{ current = btn.dataset.w; render(); };
+  });
+
+  const days = weeks[current];
+  const t = totals(days);
+  const goalDays = studyGoalDays(days);
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span class="ico">💼</span><div class="num">${t.work}h</div><div class="lbl">Work this week</div></div>
+    <div class="stat"><span class="ico">📖</span><div class="num">${t.study}h</div><div class="lbl">Study this week</div></div>
+    <div class="stat"><span class="ico">💗</span><div class="num">${t.personal}h</div><div class="lbl">Personal / training</div></div>
+    <div class="stat"><span class="ico">✨</span><div class="num">${goalDays}/7</div><div class="lbl">Days hit study goal</div></div>
+  `;
+
+  const maxH = 12;
+  document.getElementById('bars').innerHTML = days.map(d=>{
+    const work = d.items.filter(i=>i.cat==="work").reduce((a,i)=>a+i.h,0);
+    const study = d.items.filter(i=>i.cat==="study").reduce((a,i)=>a+i.h,0);
+    const personal = d.items.filter(i=>i.cat==="personal").reduce((a,i)=>a+i.h,0);
+    const total = work+study+personal;
+    const scale = total>0 ? (Math.max(total,3)/maxH*100) : 4;
+    const wPct = total? (work/total*100):0, sPct = total?(study/total*100):0, pPct = total?(personal/total*100):0;
+    return `<div class="barcol" style="height:${Math.min(scale,100)}%">
+      ${personal>0?`<div class="seg personal" style="height:${pPct}%"></div>`:''}
+      ${study>0?`<div class="seg study" style="height:${sPct}%"></div>`:''}
+      ${work>0?`<div class="seg work" style="height:${wPct}%"></div>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('daylabels').innerHTML = DOW.map(d=>`<span>${d.slice(0,3)}</span>`).join('');
+
+  document.getElementById('goalBanner').innerHTML = `
+    <div class="badge">${goalDays}/7</div>
+    <div class="txt">days met the study goal in <b>${current}</b></div>
+  `;
+
+  document.getElementById('days').innerHTML = days.map((d,idx)=>{
+    const total = d.items.reduce((a,i)=>a+i.h,0);
+    const weekend = idx>=5;
+    return `<div class="day ${weekend?'weekend':''}">
+      <div class="dname">${DOW[idx]}<span class="dtot">${total>0?total+'h':''}</span></div>
+      ${d.items.map(i=>`
+        <div class="item">
+          <span class="t">${i.t}</span>
+          <span class="label"><span class="ico">${ICONS[i.cat]}</span>${i.label}</span>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>
